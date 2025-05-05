@@ -1,70 +1,77 @@
-# Getting Started with Create React App
+# Mon Application React avec Supabase
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Description
 
-## Available Scripts
+Cette application permet de gérer des produits, utilisateurs et commandes, le tout avec un backend Supabase. Elle est construite avec React et utilise Supabase comme base de données pour gérer les utilisateurs, les produits et les commandes.
 
-In the project directory, you can run:
+## Prérequis
 
-### `npm start`
+- Node.js (version 16 ou supérieure)
+- npm (ou yarn)
+- Supabase (un compte Supabase et un projet configuré)
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Installation
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+1. **Clone le dépôt** :
 
-### `npm test`
+   ```bash
+   git clone https://github.com/ton-compte/ton-repository.git
+   cd ton-repository
+   ```
+Installe les dépendances :
+```bash
+  npm install
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Lance l'application :
+```bash
+npm start
+```
+Cela démarrera l'application et l'ouvrira dans ton navigateur à l'adresse http://localhost:3000.
 
-### `npm run build`
+Structure de l'application
+L'application est structurée en composants React et utilise Supabase pour gérer la base de données et la connexion. Voici un aperçu des pages principales :
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Page d'accueil : Affiche les produits récents.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Page Produits : Liste des produits avec possibilité de les consulter.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Page Utilisateurs : Liste des utilisateurs avec des options de filtrage et d'édition pour les admins et employés.
 
-### `npm run eject`
+Page Commandes : Permet de gérer et de suivre les commandes.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+Comptes Administrateur
+Voici les informations de connexion pour différents rôles dans l'application :
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Admin
+Email : florianxzeo.ogueton@gmail.com
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+Mot de passe : #Xzeoflo28
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+User (utilisateur sans rôle)
+Email : jesuisunuser@gmail.com
 
-## Learn More
+Mot de passe : #floflo28
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+Employé
+Email : employedumois@gmail.com
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+Mot de passe : #Employe28
 
-### Code Splitting
+Rôles
+Les différents rôles dans l'application permettent des niveaux d'accès spécifiques :
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+Admin : Accès complet à toutes les fonctionnalités (utilisateurs, produits, commandes).
 
-### Analyzing the Bundle Size
+Employé : Accès limité à certaines pages (gestion des produits et des utilisateurs sans rôle).
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+Utilisateur : Peut uniquement consulter les produits et passer des commandes, mais ne peut rien ajouter ou modifier.
 
-### Making a Progressive Web App
+Fonctionnalités
+Authentification via Supabase.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+Gestion des utilisateurs : Création, modification et suppression des utilisateurs (par admin et employé).
 
-### Advanced Configuration
+Gestion des produits : Visualisation des produits, avec une interface claire pour les consulter.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Gestion des commandes : Visualisation et mise à jour des commandes par les admins et employés.
