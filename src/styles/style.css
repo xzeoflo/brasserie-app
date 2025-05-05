@@ -1,0 +1,358 @@
+/* Style global */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  
+  :root {
+    --wood-brown: #d2b48c;
+    --green: #4caf50;
+    --white: #ffffff;
+    --dark-gray: #222;
+    --gray: #f8f4f0;
+    --light-brown: #e6d5c3;
+  }
+  
+  body {
+    font-family: sans-serif;
+    background-color: var(--gray);
+    color: var(--dark-gray);
+    padding-top: 70px;
+    margin: 0;
+  }
+  
+  .navbar {
+    background-color: var(--wood-brown);
+    color: var(--green);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    padding: 0.8rem 1.5rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+  
+  .navbar-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: flex-start; 
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  
+  
+  .navbar-logo img {
+    height: 40px;          
+    width: auto;
+    display: block;
+  }
+  
+  
+  .navbar-links {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  
+  .navbar-link {
+    color: var(--green);
+    text-decoration: none;
+    font-weight: 600;
+  }
+  
+  .navbar-link:hover {
+    text-decoration: underline;
+    color: #388e3c;
+  }
+  
+  .navbar-user {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-left: 1rem;
+  }
+  
+  .navbar-username {
+    font-size: 0.95rem;
+    white-space: nowrap;
+    color: var(--green);
+  }
+  
+  .navbar-button {
+    background-color: var(--green);
+    color: var(--white);
+    border: none;
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+  }
+  
+  .navbar-button:hover {
+    background-color: #388e3c;
+  }
+  
+  @media (max-width: 768px) {
+    .navbar-container {
+      flex-wrap: nowrap;
+      justify-content: flex-start;
+      align-items: center;
+    }
+  
+    .navbar-links {
+      flex-direction: row;
+      align-items: center;
+      gap: 1rem;
+      width: auto;
+    }
+  
+    .navbar-user {
+      flex-direction: row;
+      align-items: center;
+      margin-left: 1rem;
+    }
+  
+    .navbar-logo {
+      max-width: none;
+    }
+  }
+  
+  
+  
+  /* Corps de la page */
+  main {
+    margin-top: 60px; /* Assure que le contenu ne se cache pas sous la navbar */
+    padding: 20px;
+  }
+  
+  h1, h2, h3 {
+    color: var(--wood-brown);
+  }
+  
+  button {
+    background-color: var(--green);
+    color: var(--white);
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  button:hover {
+    background-color: var(--wood-brown);
+  }
+  
+  /* Style des cartes de produits */
+  .product-card {
+    background-color: var(--white);
+    border: 1px solid var(--light-brown);
+    border-radius: 5px;
+    padding: 15px;
+    margin: 10px;
+    width: 100px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  
+/* Force la taille de l'image dans le carrousel à 100px */
+.slick-slide img {
+    width: 300px !important;  
+    height: auto;             
+    border-radius: 5px;       
+    margin-bottom: 10px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+
+.product-card img {
+    width: 100px; 
+    height: auto;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    display: block; 
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  
+  
+  .product-card .product-name {
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+  
+  .product-card .product-price {
+    font-size: 16px;
+    color: var(--green);
+  }
+  
+  .product-card:hover {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); /* Ajoute un effet de survol */
+  }
+  
+  /* Carousel des produits */
+  .carousel {
+    display: flex;
+    overflow: hidden;
+    width: 100%;
+    margin: 20px 0;
+  }
+  
+  .carousel .product-card {
+    flex: 0 0 auto;
+    width: 100%;
+    transition: transform 0.5s ease-in-out;
+  }
+  
+  .carousel:hover .product-card {
+    transform: scale(1.05);
+  }
+  
+  /* Détail du produit */
+  .product-detail img {
+    width: 100px;
+    max-width: 500px;
+    border-radius: 10px;
+  }
+  
+  .product-detail {
+    background-color: var(--white);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Carte utilisateur */
+  .user-card {
+    background-color: var(--white);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .user-card input,
+  .user-card select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    border: 1px solid var(--light-brown);
+  }
+  
+  /* Style des commandes */
+  .order-item {
+    background-color: var(--white);
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 5px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Formulaire d'authentification */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    border: 1px solid var(--light-brown);
+  }
+  
+  button {
+    background-color: var(--green);
+    border: none;
+    padding: 12px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  button:hover {
+    background-color: var(--wood-brown);
+  }
+  
+  a {
+    text-decoration: none;
+  }
+  
+  form {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+  
+  input {
+    margin-bottom: 15px;
+  }
+  
+  
+  nav a {
+    color: var(--white);
+    text-decoration: none;
+    padding: 10px;
+    font-weight: bold;
+    margin-right: 15px;  /* Ajoute un peu d'espace entre les liens */
+  }
+  
+  nav a:hover {
+    background-color: var(--green);
+    border-radius: 5px;
+  }
+  
+  .filters {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    gap: 10px;
+    align-items: center;
+  }
+  
+  .filter-input {
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    width: 200px;
+  }
+  
+  .add-order-button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .add-order-button:hover {
+    background-color: #0056b3;
+  }
+  
+  .order-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+  }
+  
+  button {
+    font-size: 14px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+  
+  button:hover {
+    opacity: 0.8;
+  }
+  
