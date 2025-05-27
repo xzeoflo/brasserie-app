@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 export default function Home() {
   const [products, setProducts] = useState([]);
 
+  // Récupération des 5 derniers produits ajoutés grâce à leur ID.
   useEffect(() => {
     const fetchProducts = async () => {
       const { data, error } = await supabase

@@ -30,9 +30,11 @@ export default function Navbar() {
   }, []);
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
-    navigate('/home');
-  };
+  await supabase.auth.signOut();
+  navigate('/');
+  window.location.reload(); 
+};
+
 
   return (
     <nav className="navbar">
@@ -49,7 +51,7 @@ export default function Navbar() {
           {(role === 'admin' || role === 'employee') && (
             <a href="/orders" className="navbar-link">Commandes</a>
           )}
-          {role === 'admin' && (
+          {(role === 'admin' || role === 'employee') && (
             <a href="/users" className="navbar-link">Utilisateurs</a>
           )}
           {username && (

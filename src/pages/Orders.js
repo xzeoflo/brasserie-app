@@ -26,71 +26,68 @@ export default function Orders() {
             first_name,
             last_name
           )
-        `);
+        `)
+        .eq('status', 'pending');
 
-      // Apply name search filter
-      if (searchName) {
-        query = query.ilike('users.first_name', `%${searchName}%`)
-                     .or(`users.last_name.ilike.%${searchName}%`);
-      }
-
-      // Apply date search filter
       if (searchDate) {
-        query = query.eq('order_date', searchDate);  // Utilisation correcte de searchDate
+        query = query.eq('order_date', searchDate);
       }
 
       const { data, error } = await query;
 
       if (error) {
         console.error(error);
-      } else {
-        console.log('Fetched Orders:', data); // Vérification des données récupérées
-
-        // Vérification des order_items
-        data.forEach((order) => {
-          console.log('Order items for order ID', order.id, order.order_items);
-        });
-
-        // Calculer la quantité totale de produits par commande
-        const updatedOrders = data.map(order => {
-          // Vérifier si order_items est défini et contient des éléments
-          if (order.order_items && Array.isArray(order.order_items) && order.order_items.length > 0) {
-            const totalQuantity = order.order_items.reduce((sum, item) => sum + item.quantity, 0);
-            return { ...order, items_count: totalQuantity };
-          } else {
-            console.log(`Aucun produit trouvé pour la commande ID ${order.id}`); // Log pour debug
-            return { ...order, items_count: 0 }; // Aucun produit dans cette commande
-          }
-        });
-
-        setOrders(updatedOrders);
+        setOrders([]);
+        return;
       }
+
+      // Filtrage côté client sur le nom complet (first_name ou last_name)
+      let filteredData = data;
+      if (searchName.trim() !== '') {
+        const searchLower = searchName.toLowerCase();
+        filteredData = filteredData.filter(order => {
+          const firstName = order.users?.first_name?.toLowerCase() || '';
+          const lastName = order.users?.last_name?.toLowerCase() || '';
+          return firstName.includes(searchLower) || lastName.includes(searchLower);
+        });
+      }
+
+      // Calcul du nombre total de produits par commande
+      const updatedOrders = filteredData.map(order => {
+        const totalQuantity = order.order_items?.reduce((sum, item) => sum + item.quantity, 0) || 0;
+        return { ...order, items_count: totalQuantity };
+      });
+
+      setOrders(updatedOrders);
     };
 
     fetchOrders();
   }, [searchName, searchDate]);
 
-  const handleMarkAsPickedUp = async (orderId) => {
-    const { error } = await supabase
-      .from('orders')
-      .update({ status: 'picked_up' })
-      .eq('id', orderId);
-
-    if (error) {
-      console.error(error);
-    } else {
-      setOrders((prev) => prev.filter((order) => order.id !== orderId));
-    }
+  const handleViewOrderDetail = (orderId) => {
+    navigate(`/order-detail/${orderId}`);
   };
 
   const handleDeleteOrder = async (orderId) => {
+    // Supprimer les order_items liés
+    const { error: itemsError } = await supabase
+      .from('order_items')
+      .delete()
+      .eq('order_id', orderId);
+
+    if (itemsError) {
+      console.error('Erreur suppression order_items:', itemsError);
+      return;
+    }
+
+    // Supprimer la commande
     const { error } = await supabase
       .from('orders')
       .delete()
       .eq('id', orderId);
 
     if (error) {
-      console.error(error);
+      console.error('Erreur suppression order:', error);
     } else {
       setOrders((prev) => prev.filter((order) => order.id !== orderId));
     }
@@ -104,7 +101,6 @@ export default function Orders() {
     <div>
       <h2>Commandes</h2>
 
-      {/* Filters and Add Order Button */}
       <div className="filters">
         <input
           type="text"
@@ -124,18 +120,29 @@ export default function Orders() {
         </button>
       </div>
 
-      {/* Orders List */}
       <ul>
         {orders.map((order) => (
-          <li key={order.id} style={{ marginBottom: '20px', borderBottom: '1px solid #ccc', paddingBottom: '10px' }}>
-            <p>Client : {order.users ? `${order.users.first_name} ${order.users.last_name}` : 'Client inconnu'}</p>
+          <li
+            key={order.id}
+            style={{
+              marginBottom: '20px',
+              borderBottom: '1px solid #ccc',
+              paddingBottom: '10px',
+            }}
+          >
+            <p>
+              Client :{' '}
+              {order.users
+                ? `${order.users.first_name} ${order.users.last_name}`
+                : 'Client inconnu'}
+            </p>
+            <p>Date de commande : {new Date(order.order_date).toLocaleDateString('fr-FR')}</p>
             <p>Nombre de produits : {order.items_count}</p>
             <p>Total : {order.total_amount}€</p>
 
-            {/* Buttons for each order */}
             <div className="order-buttons">
               <button
-                onClick={() => handleMarkAsPickedUp(order.id)}
+                onClick={() => handleViewOrderDetail(order.id)}
                 style={{
                   backgroundColor: 'green',
                   color: 'white',

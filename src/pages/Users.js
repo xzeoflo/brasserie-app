@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../supabaseClient';
+import { useNavigate } from 'react-router-dom';
 
 export default function Users() {
   const [users, setUsers] = useState([]);
@@ -17,7 +18,9 @@ export default function Users() {
   });
   const [showCreateForm, setShowCreateForm] = useState(false);
 
-  // Récupère le user connecté ET son rôle dans la table users
+  const navigate = useNavigate();
+
+  // Récupérer l'utilisateur courant et son rôle dans la table "users"
   useEffect(() => {
     const fetchCurrentUser = async () => {
       const { data: { user }, error } = await supabase.auth.getUser();
@@ -25,25 +28,21 @@ export default function Users() {
         console.error('Erreur auth:', error);
         return;
       }
-
       const { data: userData, error: userError } = await supabase
         .from('users')
         .select('id, role')
         .eq('id', user.id)
         .single();
-
       if (userError) {
         console.error('Erreur user table:', userError);
         return;
       }
-
       setCurrentUser({ ...user, role: userData.role });
     };
-
     fetchCurrentUser();
   }, []);
 
-  // Récupère les utilisateurs selon le rôle du user courant
+  // Charger les utilisateurs selon filtre, recherche et rôle
   useEffect(() => {
     const fetchUsers = async () => {
       let query = supabase.from('users').select('*');
@@ -64,17 +63,32 @@ export default function Users() {
       if (error) console.error(error);
       else setUsers(data);
     };
-
     if (currentUser) fetchUsers();
   }, [currentUser, roleFilter, searchTerm]);
 
+  // Suppression d'un utilisateur
   const handleDelete = async (id) => {
-    if (id === currentUser.id) return;
-    const { error } = await supabase.from('users').delete().eq('id', id);
-    if (error) console.error(error);
-    else setUsers((prev) => prev.filter((u) => u.id !== id));
+    if (id === currentUser.id) {
+      alert("Vous ne pouvez pas supprimer votre propre compte.");
+      return;
+    }
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .delete()
+        .eq('id', id);
+      if (error) {
+        alert('Erreur lors de la suppression : ' + error.message);
+        return;
+      }
+      setUsers(users.filter(u => u.id !== id));
+      alert('Utilisateur supprimé avec succès.');
+    } catch (err) {
+      alert('Erreur inattendue : ' + err.message);
+    }
   };
 
+  // Passer en mode édition
   const handleEdit = (user) => {
     setEditingUser(user.id);
     setModifiedData({
@@ -84,45 +98,62 @@ export default function Users() {
     });
   };
 
+  // Sauvegarder les modifications
   const handleSave = async (id) => {
-    const { error } = await supabase
-      .from('users')
-      .update(modifiedData)
-      .eq('id', id);
-    if (error) console.error(error);
-    else {
-      setUsers((prev) =>
-        prev.map((u) => (u.id === id ? { ...u, ...modifiedData } : u))
-      );
+
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .update(modifiedData)
+        .eq('id', id);
+      if (error) {
+        alert('Erreur lors de la modification : ' + error.message);
+        return;
+      }
+      setUsers(users.map(u => (u.id === id ? { ...u, ...modifiedData } : u)));
       setEditingUser(null);
+      alert('Utilisateur modifié avec succès.');
+    } catch (err) {
+      alert('Erreur inattendue : ' + err.message);
     }
   };
 
+  // Changement dans le formulaire de modification
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setModifiedData((prev) => ({ ...prev, [name]: value }));
+    setModifiedData(prev => ({ ...prev, [name]: value }));
   };
 
+  // Changement dans le formulaire de création
   const handleNewUserChange = (e) => {
     const { name, value } = e.target;
-    setNewUser((prev) => ({ ...prev, [name]: value }));
+    setNewUser(prev => ({ ...prev, [name]: value }));
   };
 
+  // Création d'un nouvel utilisateur : déconnecte et renvoie au login
   const handleCreateUser = async () => {
-    const roleToSet =
-      currentUser.role === 'employee' ? '' : newUser.role;
+    const roleToSet = currentUser.role === 'employee' ? '' : newUser.role;
 
-    const { data, error } = await supabase.auth.admin.createUser({
+    if (!newUser.email || !newUser.password) {
+      alert("Email et mot de passe sont obligatoires.");
+      return;
+    }
+
+    const { data, error } = await supabase.auth.signUp({
       email: newUser.email,
       password: newUser.password,
     });
 
     if (error) {
-      console.error(error);
+      alert('Erreur : ' + error.message);
       return;
     }
 
-    const userId = data.user.id;
+    const userId = data.user?.id;
+    if (!userId) {
+      alert('Erreur lors de la création du compte utilisateur.');
+      return;
+    }
 
     const { error: insertError } = await supabase
       .from('users')
@@ -135,26 +166,28 @@ export default function Users() {
       });
 
     if (insertError) {
-      console.error(insertError);
+      alert('Erreur lors de la création de l’utilisateur : ' + insertError.message);
       return;
     }
 
-    setShowCreateForm(false);
-    setNewUser({ email: '', password: '', first_name: '', last_name: '', role: '' });
-    alert('Utilisateur créé avec succès');
+    // Déconnexion après création
+    await supabase.auth.signOut();
+
+    alert('Utilisateur créé avec succès. Veuillez vous reconnecter.');
+
+    navigate('/login');
+    window.location.reload();
   };
 
   return (
     <div>
       <h2>Utilisateurs</h2>
 
-      {/* Filtres en haut alignés */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-        {/* Filtre par rôle (admin seulement) */}
         {currentUser?.role === 'admin' && (
           <>
             <label>Filtrer par rôle :</label>
-            <select value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)}>
+            <select value={roleFilter} onChange={e => setRoleFilter(e.target.value)}>
               <option value="">Clients (sans rôle)</option>
               <option value="employee">Employés</option>
               <option value="admin">Admins</option>
@@ -162,41 +195,59 @@ export default function Users() {
           </>
         )}
 
-        {/* Barre de recherche */}
         <input
           type="text"
           placeholder="Nom de famille"
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={e => setSearchTerm(e.target.value)}
           style={{ padding: '4px 8px', width: '200px' }}
         />
 
-        {/* Bouton création */}
         <button onClick={() => setShowCreateForm(!showCreateForm)}>
           {showCreateForm ? 'Annuler' : 'Ajouter un utilisateur'}
         </button>
       </div>
 
-      {/* Formulaire création utilisateur */}
       {showCreateForm && (
         <div style={{ marginBottom: '1rem', border: '1px solid #ccc', padding: '1rem' }}>
-          <input name="email" value={newUser.email} onChange={handleNewUserChange} placeholder="Email" />
-          <input name="password" type="password" value={newUser.password} onChange={handleNewUserChange} placeholder="Mot de passe" />
-          <input name="first_name" value={newUser.first_name} onChange={handleNewUserChange} placeholder="Prénom" />
-          <input name="last_name" value={newUser.last_name} onChange={handleNewUserChange} placeholder="Nom" />
+          <input
+            name="email"
+            value={newUser.email}
+            onChange={handleNewUserChange}
+            placeholder="Email"
+          />
+          <input
+            name="password"
+            type="password"
+            value={newUser.password}
+            onChange={handleNewUserChange}
+            placeholder="Mot de passe"
+          />
+          <input
+            name="first_name"
+            value={newUser.first_name}
+            onChange={handleNewUserChange}
+            placeholder="Prénom"
+          />
+          <input
+            name="last_name"
+            value={newUser.last_name}
+            onChange={handleNewUserChange}
+            placeholder="Nom"
+          />
           {currentUser?.role === 'admin' && (
             <select name="role" value={newUser.role} onChange={handleNewUserChange}>
               <option value="">Client</option>
               <option value="employee">Employé</option>
+              <option value="admin">Admin</option>
             </select>
           )}
           <button onClick={handleCreateUser}>Créer</button>
         </div>
       )}
 
-      {/* Liste des utilisateurs */}
       <ul>
-        {users.map((user) => (
+        {users.map(user => (
           <li key={user.id} style={{ marginBottom: '1rem', borderBottom: '1px solid #ccc' }}>
             {editingUser === user.id ? (
               <div>
@@ -219,15 +270,18 @@ export default function Users() {
                     <option value="admin">Admin</option>
                   </select>
                 )}
-                <button onClick={() => handleSave(user.id)}>Valider</button>
+                <button onClick={() => handleSave(user.id)}>Sauvegarder</button>
+                <button onClick={() => setEditingUser(null)}>Annuler</button>
               </div>
             ) : (
               <>
                 <p>
                   {user.first_name} {user.last_name} — {user.role || 'Client'}
                 </p>
-                <button onClick={() => handleEdit(user)}>Modifier</button>
-                <button onClick={() => handleDelete(user.id)}>Supprimer</button>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <button onClick={() => handleEdit(user)}>Modifier</button>
+                  <button onClick={() => handleDelete(user.id)}>Supprimer</button>
+                </div>
               </>
             )}
           </li>

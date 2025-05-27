@@ -66,7 +66,7 @@ export default function Products() {
         {categories.length > 0 ? (
           categories.map((category) => (
             <option key={category.id} value={category.id} style={{ color: '#333' }}>
-              {category.type} {/* Afficher le type de la catégorie ici */}
+              {category.type} {/* Afficher le type(le nom) de la catégorie ici */}
             </option>
           ))
         ) : (

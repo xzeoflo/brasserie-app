@@ -17,8 +17,7 @@ export default function ProductDetail() {
       if (error) {
         console.error('Erreur lors du chargement du produit:', error);
       } else {
-        // Vérification des données retournées pour s'assurer de la présence de 'quantity'
-        console.log(data); // Ceci te permettra de voir la structure des données récupérées
+        console.log(data); 
         setProduct(data);
       }
     };
@@ -30,7 +29,6 @@ export default function ProductDetail() {
 
   return (
     <div className="product-detail-container" style={{ display: 'flex', gap: '2rem', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
-      {/* Image à gauche */}
       <div className="product-image" style={{ flex: 1 }}>
         <img
           src={product.image_url}

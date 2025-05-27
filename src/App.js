@@ -7,6 +7,7 @@ import Orders from './pages/Orders';
 import Users from './pages/Users';
 import Login from './pages/Login';
 import AddOrder from './pages/AddOrder';
+import DetailOrder from './pages/DetailOrder'
 
 function App() {
   return (
@@ -21,6 +22,8 @@ function App() {
           <Route path="/users" element={<Users />} />
           <Route path="/login" element={<Login />} />
           <Route path="/add-order" element={<AddOrder />} />
+          <Route path="/order-detail/:id" element={<DetailOrder />} />
+
         </Routes>
       </main>
     </Router>

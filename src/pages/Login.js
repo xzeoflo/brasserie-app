@@ -1,30 +1,52 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Importer useNavigate
-import { supabase } from '../supabaseClient'; // Assurer que supabase est bien configuré
+import { useNavigate } from 'react-router-dom';
+import { supabase } from '../supabaseClient';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  
-  // Remplace useHistory par useNavigate
+
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Tenter la connexion avec Supabase
-    const { user, error } = await supabase.auth.signInWithPassword({
+    // Connexion avec Supabase
+    const { data: { user }, error: signInError } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
 
-    if (error) {
-      setError(error.message);
-    } else {
-      // Si la connexion réussie, rediriger l'utilisateur vers la page d'accueil
-      navigate('/'); // Utiliser navigate pour rediriger
+    if (signInError) {
+      setError(signInError.message);
+      return;
     }
+
+    // Vérification du rôle
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('role')
+      .eq('email', email)
+      .single();
+
+    if (userError || !userData) {
+      setError("Impossible de récupérer les informations de l'utilisateur.");
+      await supabase.auth.signOut(); // Déconnexion si erreur
+      return;
+    }
+
+    const allowedRoles = ['admin', 'employee'];
+
+    if (!allowedRoles.includes(userData.role)) {
+      setError("Accès refusé. Votre rôle ne vous permet pas de vous connecter.");
+      await supabase.auth.signOut(); // Déconnexion si rôle non autorisé
+      return;
+    }
+
+    // Connexion autorisée : rediriger + reload
+    navigate('/');
+    window.location.reload();
   };
 
   return (
@@ -37,12 +59,14 @@ export default function Login() {
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          required
         />
         <label>Mot de passe</label>
         <input
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          required
         />
         <button type="submit">Se connecter</button>
       </form>
